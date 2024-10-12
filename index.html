@@ -10,13 +10,16 @@
     <ul id="file-list"></ul>
 
     <script>
-        // GitHub API URL to fetch repository contents
+        // Correct GitHub API URL for your repo
         const apiUrl = 'https://api.github.com/repos/Matee001/filestorage/contents/';
 
         // Function to fetch files from GitHub API
         async function fetchFiles() {
             try {
                 const response = await fetch(apiUrl);
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
                 const data = await response.json();
                 displayFiles(data);
             } catch (error) {
@@ -27,11 +30,24 @@
         // Function to display files on the webpage
         function displayFiles(files) {
             const fileList = document.getElementById('file-list');
+
+            // Check if there are any files
+            if (files.length === 0) {
+                fileList.textContent = 'No files found.';
+                return;
+            }
+
             files.forEach(file => {
+                // Skip displaying index.html
+                if (file.name === 'index.html') return;
+
                 if (file.type === 'file') {
                     const listItem = document.createElement('li');
                     const fileLink = document.createElement('a');
-                    fileLink.href = file.html_url;
+                    
+                    // Create raw GitHub link
+                    const rawUrl = `https://raw.githubusercontent.com/Matee001/filestorage/main/${file.name}`;
+                    fileLink.href = rawUrl; // Link to raw file
                     fileLink.textContent = file.name;
                     listItem.appendChild(fileLink);
                     fileList.appendChild(listItem);
